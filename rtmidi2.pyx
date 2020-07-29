@@ -15,7 +15,10 @@ cdef extern from "Python.h":
     void PyEval_InitThreads()
 #from libc.stdlib cimport malloc, free
 
-import inspect
+try:                    # python 3 ?
+    from inspect import getfullargspec as get_args
+except ImportError:     # else it's python 2
+    from inspect import getargspec as get_args
 import fnmatch
 
 # Init Python threads and GIL, because RtMidi calls Python from native threads.
@@ -636,7 +639,7 @@ cpdef tuple splitchannel(int b):
 
 def _func_get_numargs(func):
     try:
-        spec = inspect.getargspec(func)
+        spec = get_args(func)
         numargs = sum(1 for a in spec.args if a is not "self")
         return numargs
     except TypeError:
